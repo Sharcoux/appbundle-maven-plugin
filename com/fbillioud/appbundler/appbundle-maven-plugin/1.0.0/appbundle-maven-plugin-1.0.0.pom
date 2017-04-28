@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>sh.tak.appbundler</groupId>
+  <groupId>com.fbillioud.appbundler</groupId>
   <artifactId>appbundle-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>1.2.1-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <name>appbundle-maven-plugin</name>
-  <url>https://github.com/federkasten/appbundle-maven-plugin</url>
+  <url>https://github.com/Sharcoux/appbundle-maven-plugin</url>
   <description>Maven plugin that creates an Application Bundle for OS X containing all your project dependencies and the necessary metadata</description>
 
   <parent>
@@ -30,27 +30,48 @@
   </licenses>
 
   <scm>
-    <url>https://github.com/federkasten/appbundle-maven-plugin.git</url>
-    <connection>scm:git:git@github.com:federkasten/appbundle-maven-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:federkasten/appbundle-maven-plugin.git</developerConnection>
+    <url>https://github.com/Sharcoux/appbundle-maven-plugin.git</url>
+    <connection>scm:git:git@github.com:Sharcoux/appbundle-maven-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:Sharcoux/appbundle-maven-plugin.git</developerConnection>
   </scm>
+  
+  <distributionManagement>
+    <repository>
+        <id>internal.repo</id>
+        <name>Temporary Staging Repository</name>
+        <url>file://${project.build.directory}/mvn-repo</url>
+    </repository>
+  </distributionManagement>
 
   <build>
     <plugins>
       <plugin>
-        <artifactId>exec-maven-plugin</artifactId>
-        <groupId>org.codehaus.mojo</groupId>
-        <version>1.4.0</version>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.8.1</version>
+        <configuration>
+            <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.github.github</groupId>
+        <artifactId>site-maven-plugin</artifactId>
+        <version>0.11</version>
+        <configuration>
+            <message>Maven artifacts for ${project.version}</message>  <!-- git commit message -->
+            <noJekyll>true</noJekyll>                                  <!-- disable webpage processing -->
+            <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory> <!-- matches distribution management repository url above -->
+            <branch>refs/heads/mvn-repo</branch>                       <!-- remote branch name -->
+            <includes><include>**/*</include></includes>
+            <repositoryName>${project.name}</repositoryName>      <!-- github repo name -->
+            <repositoryOwner>Sharcoux</repositoryOwner>    <!-- github username  -->
+        </configuration>
         <executions>
+          <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
           <execution>
-            <id>build-applauncher</id>
-            <phase>generate-sources</phase>
             <goals>
-              <goal>exec</goal>
+              <goal>site</goal>
             </goals>
-            <configuration>
-              <executable>${basedir}/build.sh</executable>
-            </configuration>
+            <phase>deploy</phase>
           </execution>
         </executions>
       </plugin>
@@ -107,35 +128,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.javadoc.skip>true</maven.javadoc.skip>
+    <github.global.server>github</github.global.server>
   </properties>
-
-  <profiles>
-    <profile>
-      <id>release-sign-artifacts</id>
-      <activation>
-        <property>
-          <name>performRelease</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 </project>

@@ -1,8 +1,0 @@
-.DS_Store
-.classpath
-.project
-/.idea
-/*.iml
-/target
-/src/main/resources/sh/tak/appbundler/JavaAppLauncher
-.settings/
