@@ -337,7 +337,7 @@ public class CreateApplicationBundleMojo extends AbstractMojo {
         getLog().info("Copying dependencies");
         List<String> files = copyDependencies(javaDirectory);
         if (additionalBundledClasspathResources != null && !additionalBundledClasspathResources.isEmpty()) {
-            files.addAll(copyAdditionalBundledClasspathResources(javaDirectory, "lib", additionalBundledClasspathResources));
+            files.addAll(copyAdditionalBundledClasspathResources(javaDirectory, additionalBundledClasspathResources));
         }
 
         // 5. Check if JRE should be embedded. Check JRE path. Copy JRE
@@ -511,14 +511,14 @@ public class CreateApplicationBundleMojo extends AbstractMojo {
         list.add(layout.pathOf(project.getArtifact()));
 
         try {
-            FileUtils.copyFile(artifactFile, new File(javaDirectory, layout.pathOf(project.getArtifact())));
+            FileUtils.copyFile(artifactFile, javaDirectory);
         } catch (IOException ex) {
             throw new MojoExecutionException("Could not copy artifact file " + artifactFile + " to " + javaDirectory, ex);
         }
 
         for (Artifact artifact : project.getArtifacts()) {
             File file = artifact.getFile();
-            File dest = new File(javaDirectory, layout.pathOf(artifact));
+            File dest = javaDirectory;
 
             getLog().debug("Adding " + file);
 
@@ -544,30 +544,14 @@ public class CreateApplicationBundleMojo extends AbstractMojo {
      * @return A list of file names added
      * @throws MojoExecutionException
      */
-    private List<String> copyAdditionalBundledClasspathResources(File javaDirectory, String targetDirectoryName, List<FileSet> additionalBundledClasspathResources) throws MojoExecutionException {
+    private List<String> copyAdditionalBundledClasspathResources(File javaDirectory, List<FileSet> additionalBundledClasspathResources) throws MojoExecutionException {
         // Create the destination directory
-        File destinationDirectory = new File(javaDirectory, targetDirectoryName);
+        File destinationDirectory = javaDirectory;
         destinationDirectory.mkdirs();
 
         List<String> addedFilenames = this.copyResources(destinationDirectory, additionalBundledClasspathResources);
 
-        return addPath(addedFilenames, targetDirectoryName);
-    }
-
-    /**
-     * Modifies a String list of filenames to include an additional path.
-     *
-     * @param filenames
-     * @param additionalPath
-     * @return
-     */
-    private List<String> addPath(List<String> filenames, String additionalPath) {
-        ArrayList<String> newFilenames = new ArrayList<String>(filenames.size());
-        for (String filename : filenames) {
-            newFilenames.add(additionalPath + '/' + filename);
-        }
-
-        return newFilenames;
+        return addedFilenames;
     }
 
     /**
