@@ -511,7 +511,7 @@ public class CreateApplicationBundleMojo extends AbstractMojo {
         list.add(layout.pathOf(project.getArtifact()));
 
         try {
-            FileUtils.copyFile(artifactFile, javaDirectory);
+            FileUtils.copyFileToDirectory(artifactFile, javaDirectory);
         } catch (IOException ex) {
             throw new MojoExecutionException("Could not copy artifact file " + artifactFile + " to " + javaDirectory, ex);
         }
@@ -523,7 +523,7 @@ public class CreateApplicationBundleMojo extends AbstractMojo {
             getLog().debug("Adding " + file);
 
             try {
-                FileUtils.copyFile(file, dest);
+                FileUtils.copyFileToDirectory(file, dest);
             } catch (IOException ex) {
                 throw new MojoExecutionException("Error copying file " + file + " into " + javaDirectory, ex);
             }
@@ -751,7 +751,10 @@ public class CreateApplicationBundleMojo extends AbstractMojo {
     }
 
     private static File searchFile(String path, File basedir) {
-        File f = new File(basedir, path);
+        File f = new File(path);
+        if(f.exists()) return f;
+        
+        f = new File(basedir, path);
 
         if (f.exists()) {
             return f;
