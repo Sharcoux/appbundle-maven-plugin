@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>sh.tak.appbundler</groupId>
+  <artifactId>appbundle-maven-plugin</artifactId>
+  <versioning>
+    <latest>1.2.1-SNAPSHOT</latest>
+    <versions>
+      <version>1.2.1-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20170503161619</lastUpdated>
+  </versioning>
+</metadata>
