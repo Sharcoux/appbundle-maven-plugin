@@ -3,10 +3,10 @@
   <groupId>sh.tak.appbundler</groupId>
   <artifactId>appbundle-maven-plugin</artifactId>
   <versioning>
-    <latest>1.2.1-SNAPSHOT</latest>
+    <latest>1.2.2-SNAPSHOT</latest>
     <versions>
-      <version>1.2.1-SNAPSHOT</version>
+      <version>1.2.2-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20170503161619</lastUpdated>
+    <lastUpdated>20170504063457</lastUpdated>
   </versioning>
 </metadata>
