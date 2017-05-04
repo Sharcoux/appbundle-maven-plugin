@@ -335,7 +335,7 @@ public class CreateApplicationBundleMojo extends AbstractMojo {
 
         // 4. Resolve and copy in all dependencies from the pom
         getLog().info("Copying dependencies");
-        List<String> files = copyDependencies(javaDirectory);
+        List<String> files = copyDependencies(javaDirectory, false);
         if (additionalBundledClasspathResources != null && !additionalBundledClasspathResources.isEmpty()) {
             files.addAll(copyAdditionalBundledClasspathResources(javaDirectory, additionalBundledClasspathResources));
         }
@@ -498,37 +498,38 @@ public class CreateApplicationBundleMojo extends AbstractMojo {
      * Copy all dependencies into the $JAVAROOT directory
      *
      * @param javaDirectory where to put jar files
+     * @param copyDependencies true if dependencies aren't already embed inside the jar
      * @return A list of file names added
      * @throws MojoExecutionException
      */
-    private List<String> copyDependencies(File javaDirectory) throws MojoExecutionException {
+    private List<String> copyDependencies(File javaDirectory, boolean copyDependencies) throws MojoExecutionException {
         ArtifactRepositoryLayout layout = new DefaultRepositoryLayout();
 
         List<String> list = new ArrayList<String>();
 
         // First, copy the project's own artifact
         File artifactFile = project.getArtifact().getFile();
-        list.add(layout.pathOf(project.getArtifact()));
+        list.add(javaDirectory.getPath());
 
         try {
             FileUtils.copyFileToDirectory(artifactFile, javaDirectory);
         } catch (IOException ex) {
             throw new MojoExecutionException("Could not copy artifact file " + artifactFile + " to " + javaDirectory, ex);
         }
+        
+        if(copyDependencies) {
+            for (Artifact artifact : project.getArtifacts()) {
+                File file = artifact.getFile();
+                File dest = javaDirectory;
 
-        for (Artifact artifact : project.getArtifacts()) {
-            File file = artifact.getFile();
-            File dest = javaDirectory;
+                getLog().debug("Adding " + file);
 
-            getLog().debug("Adding " + file);
-
-            try {
-                FileUtils.copyFileToDirectory(file, dest);
-            } catch (IOException ex) {
-                throw new MojoExecutionException("Error copying file " + file + " into " + javaDirectory, ex);
+                try {
+                    FileUtils.copyFileToDirectory(file, dest);
+                } catch (IOException ex) {
+                    throw new MojoExecutionException("Error copying file " + file + " into " + javaDirectory, ex);
+                }
             }
-
-            list.add(layout.pathOf(artifact));
         }
 
         return list;
